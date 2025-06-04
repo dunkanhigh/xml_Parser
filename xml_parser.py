@@ -19,6 +19,9 @@ CREATE table IF NOT EXISTS  companies
     ДатаОбн date
 )
 """
+drop_table = """
+DROP TABLE IF EXISTS companies;
+"""
 
 # Чтение файла, создание датафрейма на его основе
 df = pd.read_xml('./data/companies.xml')
@@ -71,6 +74,9 @@ conn = psycopg2.connect(database=database['database'],
 
 # Создаю курсор
 cursor = conn.cursor()
+
+# Удаляю таблицу, если она существует
+cursor.execute(drop_table)
 
 # Выполняю запрос на создания таблицы и вставке в нее данных
 cursor.execute(sql_query)
