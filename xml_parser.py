@@ -20,8 +20,6 @@ CREATE table IF NOT EXISTS  companies
 )
 """
 
-
-
 # Чтение файла, создание датафрейма на его основе
 df = pd.read_xml('./data/companies.xml')
 
@@ -52,17 +50,21 @@ df = df[df["ОГРН"].str.len() == 13]
 # Удаление строк с null в дате (по факту, ничего не удаляет, так как таких строк нет)
 df = df.dropna(subset=["ДатаОбн"])
 
-# Агрегирую данные по ОГРН и считаю минимальную дату (самую раннюю), затем объединяю это с изначальной таблицой по двум полям (чтобы избежать дублирующих ОГРН)
-df = df.merge(df.groupby("ОГРН").agg({'ДатаОбн': 'min'}), how='left', on=["ОГРН", "ДатаОбн"], indicator="is_min_date")
+# Группирую данные по ОГРН и считаю минимальную дату (самую раннюю), затем объединяю это с изначальной таблицой по двум полям (чтобы избежать дублирующих ОГРН)
+df = df.merge(
+    df.groupby("ОГРН").agg({'ДатаОбн': 'max'}),
+    how='left',
+    on=["ОГРН", "ДатаОбн"],
+    indicator="is_max_date")
 
 print('Строки-дубликаты ОГРН')
-print(df[df["is_min_date"] == "left_only"])
+print(df[df["is_max_date"] == "left_only"])
 
-#Удаляю всмпомогательную колонку и очищаю датафрем от дубликатов
-df = df[df["is_min_date"] == "both"]
-df = df.drop('is_min_date', axis=1)
+# Удаляю всмпомогательную колонку и очищаю датафрем от дубликатов
+df = df[df["is_max_date"] == "both"]
+df = df.drop('is_max_date', axis=1)
 
-# Создаю соединение к PG
+# Создаю соединение к PG (хост и порт - дефолтные)
 conn = psycopg2.connect(database=database['database'],
                         user=database['user'],
                         password=database['password'])
