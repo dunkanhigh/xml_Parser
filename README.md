@@ -11,3 +11,13 @@ pip install psycopg2 lxml pandas
 ```bash
 docker compose up -d
 ```
+
+# Подключение к БД
+```python
+database = {'host': 'localhost',
+            'port': '5432',
+            'database': 'mydatabase',
+            'user': 'myuser',
+            'password': 'mypassword'
+            }
+```
