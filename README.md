@@ -21,3 +21,7 @@ database = {'host': 'localhost',
             'password': 'mypassword'
             }
 ```
+# Запуск скрипта
+```bash
+python xml_parser.py
+```
